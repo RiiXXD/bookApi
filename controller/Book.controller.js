@@ -17,9 +17,9 @@ BookController.get("/getBooks",async(req,res)=>{
          console.log(sortCriteria);
         }
         if(filter){
-          const[criteria,value]= filter.split(" ")
+          const[criteria,value]= filter.split(":")
           filterCriteria[criteria] = value;
-          
+          console.log(filter);
         }
          let book=[];
         const pageNumber = parseInt(page);
@@ -28,7 +28,8 @@ BookController.get("/getBooks",async(req,res)=>{
         book = await BookModel.find(filterCriteria).populate('createrId').skip((pageNumber - 1) * limitNumber)
        .limit(limitNumber).sort(sortCriteria)
     
-       const total_count=await BookModel.find({}).count();
+       const total_count=await BookModel.find(filterCriteria).populate('createrId').skip((pageNumber - 1) * limitNumber)
+       .limit(limitNumber).sort(sortCriteria).count();
            res.status(200).json({book,total_count});
        }
    catch(e){console.log("error",e);
@@ -58,6 +59,36 @@ BookController.get("/getBooks",async(req,res)=>{
    })
   
   
+   BookController.put("/edit/:id",authorization,async(req,res)=>{
+        try {
+          const bookId = req.params.id;
+          const createrId=req.body.userId;
+         
+          const book= await BookModel.findById(bookId).populate('createrId');
+          if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+          }
+          console.log(createrId,book.createrId._id.toString());
+          if(book.createrId._id.toString()!==createrId){
+            return res.status(401).json({ message: 'Not Authorized' });
+          }
+          const {title, author,publicationYear}=req.body;
+          const updatedBook = await BookModel.findByIdAndUpdate(
+            bookId,
+            { title, author, publicationYear ,createrId, LastEdited:Date.now()}     
+          );
+          if (!updatedBook) {
+            return res.status(500).json({ message: 'Something Went Wrong Try Again.' });
+          }
+          res.status(201).json({message:"Updated book successfully"})
+      }
+      catch (error) {
+          console.error( error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+      });
+     
+   
 
 
 module.exports=BookController;

@@ -12,6 +12,7 @@ const bookSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
 },
+LastEdited:{ type:Date},
 });
 const BookModel=mongoose.model("books",bookSchema);
 
