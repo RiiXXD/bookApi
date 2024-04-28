@@ -41,7 +41,7 @@ UserController.post("/sign",async(req,res)=>{
         });}
        
     }
-    catch(e){console.log("error",e);}
+    catch(e){console.status(500).log("error",e);}
 })
 
 UserController.post("/login",async (req,res)=>{
@@ -52,24 +52,23 @@ UserController.post("/login",async (req,res)=>{
     console.log(existingUser);
     bcrypt.compare(password,cipher,(err,result)=>{
       if(err){
-        res.json({msg:"Something went wrong try again",error:err});
+        res.status(400).json({msg:"Something went wrong try again",error:err});
       }
       else if(result){
         const token=jwt.sign({userId:existingUser._id},process.env.EncryptionKey);
-             res.json({msg:"Succesfully login ",token,user:{ email:existingUser._doc.email, name:existingUser._doc.name,id:existingUser._doc._id,profileImg:existingUser._doc.profileImg}})
+             res.status(200).json({msg:"Succesfully login ",token,user:{ email:existingUser._doc.email, name:existingUser._doc.name,id:existingUser._doc._id,profileImg:existingUser._doc.profileImg}})
       }
       else{
-        res.json({msg:"Invalid credentials"});
+          res.status(500).json({msg:"Invalid credentials"});
       }
     })}
         
     else{
-      res.json({msg:"Login First!"})
+      res.status(500).json({msg:"Login First!"})
     }
             
         
 })
-
 
 
 
