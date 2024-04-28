@@ -6,32 +6,35 @@ const UserModel=require("../models/User.model");
 require('dotenv').config()
 const UserController=Router();
 
+
 UserController.post("/sign",async(req,res)=>{
-   const{name, email, password, profileImg}=req.body;
+   const{name, email, password}=req.body;
     try{
       const existingUser=await UserModel.findOne({email});
+      if (!name ||!email || !password) {
+        return res.status(400).json({ error: 'Username, Name and Password are required' });
+      }
        if(existingUser){
-        res.json({msg:"Already an user!"})
+        res.status(409).json({msg:"Already an user!"})
        }
-       else{ console.log(name, email, password, profileImg);
+       else{ console.log(name, email, password);
         bcrypt.hash(password, 5, async function(err, hash) {
             if(hash){
                 const user=new UserModel({
                 name, 
                 email,
                 password:hash,
-                profileImg
             })
             await user.save();
             const token=jwt.sign({userId:user._id},process.env.EncryptionKey);
          
-            res.json({msg:"Account Created!",user:{ id:user._id,name, email, profileImg,token}})}
+            res.status(201).json({msg:"Account Created!",user:{ id:user._id,name, email,token}})}
             else if(err){
-                res.json({msg:"Something went wrong try again!"})
+                res.status(500).json({msg:"Something went wrong try again!"})
                 console.log(err);
             }
             else{
-                res.json({msg:"Invalid Credentials!"});
+                res.status(500).json({msg:"Invalid Credentials!"});
                
             }
             
