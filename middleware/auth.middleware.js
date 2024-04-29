@@ -12,7 +12,7 @@ const authorization = (req, res, next) => {
       next();
     } else {
       res.status(401).json({ msg: "Invalid Token" });
-      console.log("Error occured while login", err);
+      console.log("Error Occured While Login", err);
     }
   });
 };
