@@ -34,13 +34,14 @@ app.get("/", async (req, res) => {
   });
 });
 
+const port = process.env.Port || 8080;
 //STARTING THE SERVER
-app.listen(process.env.Port || 8080, async () => {
+app.listen(port, async () => {
   try {
     connection;
     console.log("Connection Established With DB");
   } catch (e) {
     console.log("Error While Connecting To Database", e);
   }
-  console.log("listening on", process.env.Port || 8080);
+  console.log("listening on", port);
 });
